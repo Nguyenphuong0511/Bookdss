@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Hỗ Trợ Quyết Định Gợi Ý Sách Thư Viện - DSS BookSuggest</title>
+    <meta name="description" content="Hệ thống hỗ trợ ra quyết định chọn sách thư viện cho sinh viên dựa trên thuật toán SAW chấm điểm và xếp hạng đa tiêu chí. Áp dụng cho 20 ngành học chuẩn Đại học Lâm nghiệp.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Style Sheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Glassmorphic Background Shapes -->
+    <div class="bg-shape shape-1"></div>
+    <div class="bg-shape shape-2"></div>
+    <div class="bg-shape shape-3"></div>
+
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="logo-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                </div>
+                <div class="brand-text">
+                    <h1>DSS BookSuggest</h1>
+                    <span>Hệ Hỗ Trợ Quyết Định</span>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active" data-tab="dashboard" id="btn-tab-dashboard">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
+                    <span>Trang Chủ / Tổng Quan</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="dss-engine" id="btn-tab-dss">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                    <span>Hệ Gợi Ý DSS (SAW)</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="repository" id="btn-tab-repo">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>
+                    <span>Kho Sách Thư Viện</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="borrows" id="btn-tab-borrows" style="position:relative;">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    <span>Phiếu Mượn Đang Hoạt Động</span>
+                    <span id="active-borrows-badge" style="display:none; position:absolute; right:12px; top:50%; transform:translateY(-50%); background:#ef4444; color:white; font-size:0.62rem; font-weight:800; min-width:18px; height:18px; border-radius:9px; padding:0 5px; align-items:center; justify-content:center; letter-spacing:0;">0</span>
+                </a>
+            </nav>
+
+            <!-- Library Status Widget -->
+            <div class="status-widget">
+                <div class="widget-header">
+                    <span class="pulse-indicator"></span>
+                    <span>Thư Viện Trực Tuyến</span>
+                </div>
+                <p>Cơ sở dữ liệu đã đồng bộ 2,000 đầu sách thuộc 20 ngành đào tạo chuẩn.</p>
+                <div class="school-tag">ĐH Lâm Nghiệp Việt Nam</div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="header-title">
+                    <h2 id="page-title">Tổng Quan Thư Viện</h2>
+                    <p id="page-subtitle">Hệ thống phân tích và đề xuất tài liệu học tập tối ưu</p>
+                </div>
+                <div class="header-meta">
+                    <div class="user-session-pill" id="user-session-pill" title="Tài khoản sinh viên">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                        <div class="user-session-text">
+                            <span id="header-user-name">Sinh viên</span>
+                            <small id="header-user-id">MSSV</small>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-logout" id="btn-logout" title="Đăng xuất">Đăng xuất</button>
+                    <div class="date-badge">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                        <span id="current-date">26/05/2026</span>
+                    </div>
+                    <div class="bookshelf-pill" id="btn-view-bookshelf">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                        <span>Sách đã chọn (<span id="bookshelf-count">0</span>)</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Tab (Active by Default) -->
+            <section id="tab-dashboard" class="tab-content active">
+                <!-- Welcome Banner -->
+                <div class="welcome-banner">
+                    <div class="banner-info">
+                        <h3 id="welcome-banner-title">Tìm Kiếm Sách Không Còn Là Trở Ngại!</h3>
+                        <p id="welcome-banner-text">Chào mừng bạn đến với <strong>DSS BookSuggest</strong> - Hệ hỗ trợ quyết định thông minh giúp bạn chọn lựa tài liệu, giáo trình và tài liệu nghiên cứu chuẩn xác nhất dựa trên ngành học, sở thích và kết quả đánh giá từ cộng đồng sinh viên.</p>
+                        <button class="btn-primary" onclick="switchTab('dss-engine')">
+                            <span>Trải nghiệm Hệ Gợi Ý DSS ngay</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                        </button>
+                    </div>
+                    <div class="banner-illustration">
+                        <!-- Abstract book visualization in SVG -->
+                        <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="100" cy="100" r="80" fill="url(#grad1)" opacity="0.15"/>
+                            <path d="M60 140V70C60 64.4772 64.4772 60 70 60H140V130C140 135.523 135.523 140 130 140H60Z" fill="url(#grad2)" />
+                            <path d="M50 150V80C50 74.4772 54.4772 70 60 70H130V140C130 145.523 125.523 150 120 150H50Z" fill="url(#grad3)" opacity="0.9"/>
+                            <rect x="70" y="90" width="40" height="6" rx="3" fill="#ffffff" opacity="0.8"/>
+                            <rect x="70" y="105" width="30" height="6" rx="3" fill="#ffffff" opacity="0.8"/>
+                            <circle cx="120" cy="120" r="25" fill="#10b981" />
+                            <path d="M115 120l3 3 7-7" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                            <defs>
+                                <linearGradient id="grad1" x1="0" y1="0" x2="200" y2="200" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#3b82f6"/>
+                                    <stop offset="1" stop-color="#8b5cf6"/>
+                                </linearGradient>
+                                <linearGradient id="grad2" x1="60" y1="60" x2="140" y2="140" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#2563eb"/>
+                                    <stop offset="1" stop-color="#4f46e5"/>
+                                </linearGradient>
+                                <linearGradient id="grad3" x1="50" y1="70" x2="130" y2="150" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#3b82f6"/>
+                                    <stop offset="1" stop-color="#10b981"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Statistics Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon icon-blue">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                        </div>
+                        <div class="stat-info">
+                            <h4>2,000</h4>
+                            <p>Tổng Đầu Sách</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon icon-green">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                        </div>
+                        <div class="stat-info">
+                            <h4>20</h4>
+                            <p>Ngành Đào Tạo Chuẩn</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon icon-purple">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        </div>
+                        <div class="stat-info">
+                            <h4>542,830</h4>
+                            <p>Lượt Mượn Hệ Thống</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon icon-orange">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                        </div>
+                        <div class="stat-info">
+                            <h4>4.52 / 5.0</h4>
+                            <p>Đánh Giá Trung Bình</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Faculty Distribution & Explainer Grid -->
+                <div class="dashboard-grid">
+                    <!-- Faculty Book Distribution Chart Card -->
+                    <div class="chart-card">
+                        <div class="card-header">
+                            <h3>Phân Bổ Tài Liệu Theo Khoa / Viện</h3>
+                            <span class="badge">Định lượng 100 sách/ngành</span>
+                        </div>
+                        <div class="faculty-chart-container">
+                            <div class="faculty-bar-group">
+                                <div class="faculty-label">
+                                    <strong>Khoa Quản lý Tài nguyên Rừng và Môi trường</strong>
+                                    <span>(3 Ngành - 300 sách)</span>
+                                </div>
+                                <div class="bar-wrapper">
+                                    <div class="bar-progress bar-forestry" style="width: 100%;"></div>
+                                </div>
+                            </div>
+                            <div class="faculty-bar-group">
+                                <div class="faculty-label">
+                                    <strong>Khoa Lâm học</strong>
+                                    <span>(1 Ngành - 100 sách)</span>
+                                </div>
+                                <div class="bar-wrapper">
+                                    <div class="bar-progress bar-silviculture" style="width: 33.3%;"></div>
+                                </div>
+                            </div>
+                            <div class="faculty-bar-group">
+                                <div class="faculty-label">
+                                    <strong>Khoa Kinh tế và Quản trị Kinh doanh</strong>
+                                    <span>(6 Ngành - 600 sách)</span>
+                                </div>
+                                <div class="bar-wrapper">
+                                    <div class="bar-progress bar-economy" style="width: 100%;"></div>
+                                </div>
+                            </div>
+                            <div class="faculty-bar-group">
+                                <div class="faculty-label">
+                                    <strong>Khoa Cơ điện và Công trình</strong>
+                                    <span>(4 Ngành - 400 sách)</span>
+                                </div>
+                                <div class="bar-wrapper">
+                                    <div class="bar-progress bar-engineering" style="width: 66.6%;"></div>
+                                </div>
+                            </div>
+                            <div class="faculty-bar-group">
+                                <div class="faculty-label">
+                                    <strong>Viện Công nghệ Sinh học</strong>
+                                    <span>(1 Ngành - 100 sách)</span>
+                                </div>
+                                <div class="bar-wrapper">
+                                    <div class="bar-progress bar-biotech" style="width: 33.3%;"></div>
+                                </div>
+                            </div>
+                            <div class="faculty-bar-group">
+                                <div class="faculty-label">
+                                    <strong>Các Viện & Khoa Khác (Đất đai, Trồng trọt, Thú y, Thiết kế...)</strong>
+                                    <span>(5 Ngành - 500 sách)</span>
+                                </div>
+                                <div class="bar-wrapper">
+                                    <div class="bar-progress bar-others" style="width: 83.3%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- How it Works Card -->
+                    <div class="explainer-card">
+                        <div class="card-header">
+                            <h3>Nguyên Lý Hỗ Trợ Quyết Định (DSS)</h3>
+                        </div>
+                        <div class="explainer-steps">
+                            <div class="step-item">
+                                <div class="step-number">1</div>
+                                <div class="step-desc">
+                                    <h5>Thiết lập Nhu cầu Học tập</h5>
+                                    <p>Bạn chọn Ngành học chính khóa và chọn Mục tiêu đọc sách hiện tại (làm đồ án, nghiên cứu khoa học, luyện thi hoặc thực hành).</p>
+                                </div>
+                            </div>
+                            <div class="step-item">
+                                <div class="step-number">2</div>
+                                <div class="step-desc">
+                                    <h5>Tùy biến Trọng số Quyết định</h5>
+                                    <p>Sử dụng các thanh trượt để chỉ định mức độ quan trọng của từng tiêu chí. Ví dụ: Nếu cần tìm tài liệu uy tín nhất, hãy tăng trọng số <strong>Đánh giá</strong>; nếu cần tìm sách được sinh viên đọc nhiều nhất, hãy tăng trọng số <strong>Độ phổ biến</strong>.</p>
+                                </div>
+                            </div>
+                            <div class="step-item">
+                                <div class="step-number">3</div>
+                                <div class="step-desc">
+                                    <h5>Chấm điểm & Đề xuất (SAW)</h5>
+                                    <p>Hệ thống tự động chạy thuật toán SAW để tính toán điểm tối ưu của 2,000 cuốn sách, lập bảng xếp hạng và cung cấp chi tiết cách tính điểm của từng cuốn sách để bạn đưa ra lựa chọn sáng suốt.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- DSS Recommendation Engine Tab -->
+            <section id="tab-dss-engine" class="tab-content">
+                <div class="dss-workspace">
+                    <!-- Column 1: Inputs & Parameters -->
+                    <div class="dss-inputs-panel">
+                        <div class="panel-section">
+                            <h3 class="section-title">
+                                <span class="badge-num">1</span>
+                                Hồ Sơ Học Tập Của Sinh Viên
+                            </h3>
+                            
+                            <div class="form-group">
+                                <label for="select-major">Ngành học hiện tại của bạn:</label>
+                                <select id="select-major" class="form-control">
+                                    <!-- Dynamic injection of 20 majors -->
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Mục tiêu / Sở thích đọc sách:</label>
+                                <div class="pill-group" id="interest-pills">
+                                    <button class="pill active" data-value="research">Nghiên cứu khoa học</button>
+                                    <button class="pill" data-value="practice">Thực hành & Thực chiến</button>
+                                    <button class="pill" data-value="thesis">Làm đồ án & Luận văn</button>
+                                    <button class="pill" data-value="exam">Luyện thi & Đọc thêm</button>
+                                    <button class="pill" data-value="general">Đọc giải trí & Kiến thức chung</button>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="input-dss-keyword">Tìm nhanh theo từ khóa (tùy chọn):</label>
+                                <input type="text" id="input-dss-keyword" class="form-control" placeholder="Ví dụ: Lập trình, Quản lý, Lâm sinh, Giáo trình...">
+                            </div>
+                        </div>
+
+                        <div class="panel-section">
+                            <div class="section-header-row">
+                                <h3 class="section-title">
+                                    <span class="badge-num">2</span>
+                                    Thiết Lập Trọng Số Quyết Định (%)
+                                </h3>
+                                <button class="btn-text" id="btn-reset-weights" title="Đặt lại các trọng số bằng nhau">Mặc định</button>
+                            </div>
+                            <p class="section-subtitle">Tổng trọng số phải bằng 100%. Hệ thống sẽ tự động cân bằng khi bạn kéo thanh trượt.</p>
+
+                            <div class="weight-slider-group">
+                                <div class="slider-label">
+                                    <span>Độ phù hợp Ngành học (W₁)</span>
+                                    <strong id="val-w-major">25%</strong>
+                                </div>
+                                <input type="range" id="slider-w-major" class="dss-slider" min="0" max="100" value="25">
+                            </div>
+
+                            <div class="weight-slider-group">
+                                <div class="slider-label">
+                                    <span>Độ khớp Mục tiêu/Sở thích (W₂)</span>
+                                    <strong id="val-w-interest">25%</strong>
+                                </div>
+                                <input type="range" id="slider-w-interest" class="dss-slider" min="0" max="100" value="25">
+                            </div>
+
+                            <div class="weight-slider-group">
+                                <div class="slider-label">
+                                    <span>Độ phổ biến - Lượt mượn (W₃)</span>
+                                    <strong id="val-w-popularity">25%</strong>
+                                </div>
+                                <input type="range" id="slider-w-popularity" class="dss-slider" min="0" max="100" value="25">
+                            </div>
+
+                            <div class="weight-slider-group">
+                                <div class="slider-label">
+                                    <span>Đánh giá từ người dùng (W₄)</span>
+                                    <strong id="val-w-rating">25%</strong>
+                                </div>
+                                <input type="range" id="slider-w-rating" class="dss-slider" min="0" max="100" value="25">
+                            </div>
+
+                            <div class="weight-summary-badge">
+                                <span>Tổng trọng số kiểm tra:</span>
+                                <strong id="total-weight-check" class="success-text">100%</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Column 2: Recommendation Results & DSS Explainers -->
+                    <div class="dss-results-panel">
+                        <!-- Recommendation Top Header -->
+                        <div class="results-header">
+                            <div>
+                                <h3>Đề Xuất Sách Phù Hợp Nhất (DSS Top Results)</h3>
+                                <p>Được chấm điểm và xếp hạng động theo thuật toán SAW trong bộ 2,000 cuốn sách</p>
+                            </div>
+                            <button class="btn-primary" id="btn-run-dss">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                <span>Áp Dụng DSS</span>
+                            </button>
+                        </div>
+
+                        <!-- Mathematical Explainer Panel (Collapsible/Accordion) -->
+                        <div class="math-explainer-card">
+                            <div class="explainer-toggle" id="math-toggle">
+                                <div class="toggle-title">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"></path><path d="M12 9v6"></path><path d="M9 12h6"></path></svg>
+                                    <strong>Trực Quan Hóa Toán Học DSS (Math Explainer - Phương pháp SAW)</strong>
+                                </div>
+                                <span class="arrow-icon">▼</span>
+                            </div>
+                            
+                            <div class="explainer-content" id="math-content">
+                                <div class="math-formula-box">
+                                    <p>Tổng điểm của mỗi cuốn sách được tính theo phương pháp Cộng tuyến tính có trọng số:</p>
+                                    <div class="latex-render">
+                                        S_i = \sum_{j=1}^{4} w_j \cdot r_{ij} = (w_1 \cdot r_{i1}) + (w_2 \cdot r_{i2}) + (w_3 \cdot r_{i3}) + (w_4 \cdot r_{i4})
+                                    </div>
+                                    <p class="math-notes">
+                                        Trong đó: $r_{ij} \in [0, 1]$ là điểm chuẩn hóa của sách $i$ theo tiêu chí $j$. Trọng số $w_j$ được chia cho 100.
+                                    </p>
+                                </div>
+
+                                <div class="table-scroll-container">
+                                    <table class="math-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Xếp hạng</th>
+                                                <th>Tên sách</th>
+                                                <th>Ngành học (R₁)</th>
+                                                <th>Sở thích (R₂)</th>
+                                                <th>Mượn nhiều (R₃)</th>
+                                                <th>Đánh giá (R₄)</th>
+                                                <th>Tổng điểm DSS</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="math-explain-table-body">
+                                            <!-- Dynamic table rows injected here by app.js showing details for Top 5 books -->
+                                            <tr>
+                                                <td colspan="7" class="text-center">Hãy nhấn nút "Áp Dụng DSS" để hiển thị phân tích toán học.</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="math-guide-footer">
+                                    <p>💡 <em>*Giải thích chuẩn hóa:* Điểm số lượt mượn ($r_{i3}$) được tính bằng $\frac{\text{Lượt mượn của sách}}{\text{Lượt mượn tối đa trong ngành}}$. Điểm đánh giá ($r_{i4}$) bằng $\frac{\text{Số sao}}{5.0}$.</em></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recommendations Grid -->
+                        <div class="recommendations-grid" id="recommendations-container">
+                            <!-- Dynamic Cards Injected by app.js -->
+                            <div class="loading-state">
+                                <p>Đang tải dữ liệu và phân tích...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Book Repository Tab -->
+            <section id="tab-repository" class="tab-content">
+                <div class="repository-layout">
+                    <!-- Filters and Search Toolbar -->
+                    <div class="repo-toolbar">
+                        <div class="search-box-wrapper">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            <input type="text" id="repo-search" class="form-control" placeholder="Tìm kiếm nhanh trong 2,000 đầu sách (theo tên sách, tác giả)...">
+                        </div>
+                        <div class="filter-actions">
+                            <select id="repo-filter-major" class="form-control">
+                                <option value="all">Tất cả 20 ngành học</option>
+                                <!-- Dynamic options -->
+                            </select>
+                            <select id="repo-sort-by" class="form-control">
+                                <option value="default">Mặc định</option>
+                                <option value="rating-desc">Đánh giá cao nhất</option>
+                                <option value="popularity-desc">Mượn nhiều nhất</option>
+                                <option value="year-desc">Mới nhất (Năm XB)</option>
+                                <option value="title-asc">Tên sách A-Z</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Book Table / List with Pagination -->
+                    <div class="repo-results-card">
+                        <div class="results-meta-header">
+                            <span>Tìm thấy <strong id="repo-total-count">2000</strong> cuốn sách</span>
+                            <span class="page-indicator" id="repo-page-indicator">Trang 1 / 100</span>
+                        </div>
+
+                        <div class="table-scroll-container">
+                            <table class="repo-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 50px;">Mã</th>
+                                        <th>Tên sách</th>
+                                        <th>Tác giả</th>
+                                        <th>Ngành học liên quan</th>
+                                        <th style="width: 100px;">Năm XB</th>
+                                        <th style="width: 120px; text-align: center;">Độ Phổ Biến</th>
+                                        <th style="width: 120px; text-align: center;">Đánh Giá</th>
+                                        <th style="width: 100px; text-align: center;">Thao Tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="repo-table-body">
+                                    <!-- Injected dynamically by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination Footer -->
+                        <div class="pagination-footer">
+                            <button class="btn-secondary" id="btn-pagination-prev">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                                <span>Trang trước</span>
+                            </button>
+                            <div class="page-numbers-container" id="pagination-pages">
+                                <!-- Dynamic numbers -->
+                            </div>
+                            <button class="btn-secondary" id="btn-pagination-next">
+                                <span>Trang sau</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Phiếu Mượn Đang Hoạt Động Tab -->
+            <section id="tab-borrows" class="tab-content">
+                <div class="repository-layout">
+                    <div class="repo-toolbar" style="align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+                        <div>
+                            <h3 style="margin:0; font-size:1.1rem; font-weight:700;">📋 Phiếu Mượn Đang Hoạt Động</h3>
+                            <p style="margin:4px 0 0; font-size:0.8rem; color:var(--text-muted);">Có <strong id="borrows-active-count">0</strong> phiếu mượn đang mở — Nhấn "Xác nhận Trả Sách" khi sinh viên trả sách để cập nhật hệ thống.</p>
+                        </div>
+                        <div style="display:flex; gap:8px; align-items:center;">
+                            <div style="background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); border-radius:8px; padding:6px 14px; font-size:0.75rem; color:#ef4444; font-weight:600;">
+                                🔴 Đang mượn = sách không thể mượn thêm
+                            </div>
+                            <div style="background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); border-radius:8px; padding:6px 14px; font-size:0.75rem; color:#10b981; font-weight:600;">
+                                ✅ Trả sách = lượt mượn giữ nguyên
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="borrows-empty-state" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:80px 20px; color:var(--text-muted); text-align:center;">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:64px;height:64px; opacity:0.3; margin-bottom:16px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                        <p style="font-size:1rem; font-weight:600; margin:0;">Chưa có phiếu mượn nào đang hoạt động</p>
+                        <p style="font-size:0.82rem; margin:8px 0 0;">Khi sinh viên xác nhận mượn sách, phiếu sẽ xuất hiện ở đây để bạn theo dõi và xử lý trả sách.</p>
+                    </div>
+
+                    <div id="borrows-list-container" style="display:flex; flex-direction:column; gap:16px; padding-bottom:40px;">
+                        <!-- Borrow record cards injected by app.js -->
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Virtual Bookshelf / Drawer (Selected books) -->
+    <div class="bookshelf-drawer" id="bookshelf-drawer">
+        <div class="drawer-overlay" id="bookshelf-overlay"></div>
+        <div class="drawer-content">
+            <div class="drawer-header">
+                <h3>Sách Đã Chọn Của Bạn</h3>
+                <button class="btn-close" id="btn-close-bookshelf">×</button>
+            </div>
+            <div class="drawer-body">
+                <div class="bookshelf-empty-state" id="bookshelf-empty">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                    <p>Chưa có sách nào trong kệ của bạn. Hãy bấm nút "Mượn Sách" ở danh sách gợi ý để thêm vào đây!</p>
+                </div>
+                <div class="bookshelf-list" id="bookshelf-list-container" style="display: none;">
+                    <!-- Selected book items -->
+                </div>
+            </div>
+            <div class="drawer-footer" id="bookshelf-footer" style="display: none;">
+                <div class="footer-summary">
+                    <span>Tổng số sách mượn:</span>
+                    <strong id="bookshelf-total-count">0 cuốn</strong>
+                </div>
+                <button class="btn-primary btn-block" id="btn-checkout-sim">
+                    <span>Xác nhận Đăng ký Mượn Sách</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Borrow Form & Official VNUF Slip Modal -->
+    <div class="modal-wrapper" id="borrow-modal">
+        <div class="modal-overlay" id="borrow-modal-overlay"></div>
+        <div class="modal-container animate-pop">
+            
+            <!-- Step 1: Input Student Information -->
+            <div id="modal-step-input" class="modal-step active">
+                <div class="modal-header">
+                    <h3>Thông Tin Thẻ Đăng Ký Mượn</h3>
+                    <button class="btn-close-modal" id="btn-close-borrow-modal">×</button>
+                </div>
+                <div class="modal-body">
+                    <p class="modal-guide-text">Hệ thống đã <strong>tự điền</strong> thông tin từ tài khoản của bạn. Vui lòng <strong>kiểm tra</strong> — nếu sai hãy chỉnh sửa, sau đó tạo phiếu mượn như bình thường.</p>
+                    <div class="form-group">
+                        <label for="borrow-student-name">Họ và tên Sinh viên:</label>
+                        <input type="text" id="borrow-student-name" class="form-control" placeholder="Ví dụ: Nguyễn Văn Hoàng" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="borrow-student-id">Mã số Sinh viên (MSSV):</label>
+                        <input type="text" id="borrow-student-id" class="form-control" placeholder="Ví dụ: 22115682" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="borrow-student-class">Lớp học chính khóa:</label>
+                        <input type="text" id="borrow-student-class" class="form-control" placeholder="Ví dụ: K67-HTTT" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="borrow-student-phone">Số điện thoại liên lạc:</label>
+                        <input type="text" id="borrow-student-phone" class="form-control" placeholder="Ví dụ: 0987xxxxxx" required>
+                    </div>
+                    
+                    <div class="borrow-summary-preview">
+                        <span>Số tài liệu đăng ký mượn:</span>
+                        <strong id="borrow-preview-count">0 cuốn</strong>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" id="btn-cancel-borrow">Hủy bỏ</button>
+                    <button class="btn-primary" id="btn-submit-borrow-form">
+                        <span>Tạo Phiếu Đăng Ký Mượn</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 2: Show Official Borrow Slip -->
+            <div id="modal-step-slip" class="modal-step">
+                <div class="modal-header">
+                    <h3>Phiếu Mượn Sách Trực Tuyến</h3>
+                    <button class="btn-close-modal" id="btn-close-slip-modal">×</button>
+                </div>
+                <div class="modal-body">
+                    <!-- The Official VNUF Slip (Receipt style but gorgeous glassmorphic web version) -->
+                    <div class="vnuf-slip-box" id="vnuf-slip-print-area">
+                        <div class="slip-header">
+                            <div class="slip-school-info">
+                                <h5>TRƯỜNG ĐẠI HỌC LÂM NGHIỆP</h5>
+                                <span>THƯ VIỆN & THÔNG TIN HỌC LIỆU</span>
+                            </div>
+                            <div class="slip-code">
+                                <span class="slip-badge">PHIẾU ĐĂNG KÝ MƯỢN</span>
+                                <small id="slip-id-text">Số: VNUF-482930</small>
+                            </div>
+                        </div>
+
+                        <h4 class="slip-title">PHIẾU ĐĂNG KÝ MƯỢN SÁCH PHÒNG ĐỌC / MƯỢN VỀ</h4>
+
+                        <div class="slip-student-grid">
+                            <div><span>Họ và tên:</span> <strong id="slip-stud-name">Nguyễn Văn Hoàng</strong></div>
+                            <div><span>MSSV:</span> <strong id="slip-stud-id">22115682</strong></div>
+                            <div><span>Lớp học:</span> <strong id="slip-stud-class">K67-HTTT</strong></div>
+                            <div><span>SĐT:</span> <strong id="slip-stud-phone">0987xxxxxx</strong></div>
+                            <div><span>Ngày đăng ký:</span> <strong id="slip-date-borrow">26/05/2026</strong></div>
+                            <div><span>Hạn trả (14 ngày):</span> <strong id="slip-date-return">09/06/2026</strong></div>
+                        </div>
+
+                        <div class="slip-books-table-wrapper">
+                            <table class="slip-books-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 80px;">Mã sách</th>
+                                        <th>Tên tài liệu / Tác giả</th>
+                                        <th>Ngành liên quan</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="slip-books-body">
+                                    <!-- Selected books rows dynamic injection -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="slip-footer">
+                            <div class="slip-barcode-area">
+                                <div class="slip-barcode-bars">
+                                    <!-- Styled barcode bars -->
+                                    <div class="b-bar" style="width: 2px;"></div>
+                                    <div class="b-bar" style="width: 4px;"></div>
+                                    <div class="b-bar" style="width: 1px;"></div>
+                                    <div class="b-bar" style="width: 3px;"></div>
+                                    <div class="b-bar" style="width: 1px;"></div>
+                                    <div class="b-bar" style="width: 4px;"></div>
+                                    <div class="b-bar" style="width: 2px;"></div>
+                                    <div class="b-bar" style="width: 1px;"></div>
+                                    <div class="b-bar" style="width: 3px;"></div>
+                                </div>
+                                <small>Hệ thống hỗ trợ ra quyết định DSS SAW</small>
+                            </div>
+                            <div class="slip-signature">
+                                <small id="slip-location-date">Hà Nội, ngày 26 tháng 05 năm 2026</small>
+                                <p>Người đăng ký ký tên</p>
+                                <div class="signature-line"></div>
+                                <span id="slip-stud-sig">Nguyễn Văn Hoàng</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" id="btn-print-slip">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                        <span>In Phiếu Mượn</span>
+                    </button>
+                    <button class="btn-primary" id="btn-finish-borrow">Hoàn tất & Đóng</button>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

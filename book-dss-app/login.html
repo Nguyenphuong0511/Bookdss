@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập — DSS BookSuggest</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="auth-page">
+    <div class="bg-shape shape-1"></div>
+    <div class="bg-shape shape-2"></div>
+    <div class="bg-shape shape-3"></div>
+
+    <div class="auth-wrapper">
+        <div class="auth-brand">
+            <div class="logo-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+            </div>
+            <h1>DSS BookSuggest</h1>
+            <p>Hệ thống gợi ý & mượn sách thư viện — ĐH Lâm Nghiệp</p>
+        </div>
+
+        <div class="auth-card animate-pop">
+            <div class="auth-tabs">
+                <button type="button" class="auth-tab active" data-auth-tab="login">Đăng nhập</button>
+                <button type="button" class="auth-tab" data-auth-tab="register">Đăng ký</button>
+            </div>
+
+            <div id="auth-alert" class="auth-alert" role="alert" hidden></div>
+
+            <!-- Login -->
+            <form id="form-login" class="auth-form active" autocomplete="on">
+                <div class="form-group">
+                    <label for="login-student-id">Mã số sinh viên (MSSV)</label>
+                    <input type="text" id="login-student-id" class="form-control" placeholder="Ví dụ: 22115682" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Mật khẩu</label>
+                    <input type="password" id="login-password" class="form-control" placeholder="Tối thiểu 6 ký tự" required minlength="6">
+                </div>
+                <label class="auth-remember">
+                    <input type="checkbox" id="login-remember" checked>
+                    <span>Ghi nhớ phiên đăng nhập trên trình duyệt này</span>
+                </label>
+                <button type="submit" class="btn-primary btn-block" id="btn-login-submit">
+                    <span>Đăng nhập vào hệ thống</span>
+                </button>
+                <p class="auth-hint">Tài khoản demo: MSSV <strong>22115682</strong> / mật khẩu <strong>123456</strong> (tự tạo lần đầu mở trang)</p>
+            </form>
+
+            <!-- Register -->
+            <form id="form-register" class="auth-form" autocomplete="on">
+                <div class="form-group">
+                    <label for="reg-student-id">Mã số sinh viên (MSSV) *</label>
+                    <input type="text" id="reg-student-id" class="form-control" placeholder="Ví dụ: 22115682" required>
+                </div>
+                <div class="form-group">
+                    <label for="reg-full-name">Họ và tên *</label>
+                    <input type="text" id="reg-full-name" class="form-control" placeholder="Nguyễn Văn Hoàng" required>
+                </div>
+                <div class="form-group">
+                    <label for="reg-class">Lớp học chính khóa *</label>
+                    <input type="text" id="reg-class" class="form-control" placeholder="K67-HTTT" required>
+                </div>
+                <div class="form-group">
+                    <label for="reg-phone">Số điện thoại *</label>
+                    <input type="tel" id="reg-phone" class="form-control" placeholder="0987654321" required>
+                </div>
+                <div class="form-group">
+                    <label for="reg-email">Email (tuỳ chọn)</label>
+                    <input type="email" id="reg-email" class="form-control" placeholder="sv@vnuf.edu.vn">
+                </div>
+                <div class="form-group">
+                    <label for="reg-password">Mật khẩu *</label>
+                    <input type="password" id="reg-password" class="form-control" placeholder="Tối thiểu 6 ký tự" required minlength="6">
+                </div>
+                <div class="form-group">
+                    <label for="reg-password-confirm">Nhập lại mật khẩu *</label>
+                    <input type="password" id="reg-password-confirm" class="form-control" required minlength="6">
+                </div>
+                <button type="submit" class="btn-primary btn-block">
+                    <span>Tạo tài khoản sinh viên</span>
+                </button>
+                <p class="auth-hint">Thông tin đăng ký sẽ được dùng để <strong>tự điền phiếu mượn</strong>. Bạn vẫn có thể chỉnh sửa trước khi xác nhận.</p>
+            </form>
+        </div>
+
+        <p class="auth-storage-note">
+            Dữ liệu tài khoản lưu trên trình duyệt (localStorage) — không cần cài SQL.
+            Phù hợp demo/đồ án; triển khai thật nên dùng máy chủ + cơ sở dữ liệu.
+        </p>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        (async function () {
+            await DssAuth.seedDemoUserIfEmpty();
+            if (DssAuth.isLoggedIn()) {
+                window.location.replace("index.html");
+                return;
+            }
+
+            const alertEl = document.getElementById("auth-alert");
+            const tabs = document.querySelectorAll(".auth-tab");
+            const forms = document.querySelectorAll(".auth-form");
+
+            function showAlert(message, type) {
+                alertEl.hidden = false;
+                alertEl.textContent = message;
+                alertEl.className = "auth-alert " + (type === "success" ? "auth-alert-success" : "auth-alert-error");
+            }
+
+            function hideAlert() {
+                alertEl.hidden = true;
+            }
+
+            tabs.forEach((tab) => {
+                tab.addEventListener("click", () => {
+                    const target = tab.dataset.authTab;
+                    tabs.forEach((t) => t.classList.toggle("active", t === tab));
+                    forms.forEach((f) => f.classList.toggle("active", f.id === "form-" + target));
+                    hideAlert();
+                });
+            });
+
+            document.getElementById("form-login").addEventListener("submit", async (e) => {
+                e.preventDefault();
+                hideAlert();
+                const btn = document.getElementById("btn-login-submit");
+                btn.disabled = true;
+                const result = await DssAuth.loginUser(
+                    document.getElementById("login-student-id").value,
+                    document.getElementById("login-password").value
+                );
+                btn.disabled = false;
+                if (result.ok) {
+                    showAlert(result.message, "success");
+                    setTimeout(() => { window.location.replace("index.html"); }, 400);
+                } else {
+                    showAlert(result.message, "error");
+                }
+            });
+
+            document.getElementById("form-register").addEventListener("submit", async (e) => {
+                e.preventDefault();
+                hideAlert();
+                const pwd = document.getElementById("reg-password").value;
+                const pwd2 = document.getElementById("reg-password-confirm").value;
+                if (pwd !== pwd2) {
+                    showAlert("Mật khẩu nhập lại không khớp.", "error");
+                    return;
+                }
+                const result = await DssAuth.registerUser({
+                    studentId: document.getElementById("reg-student-id").value,
+                    password: pwd,
+                    fullName: document.getElementById("reg-full-name").value,
+                    className: document.getElementById("reg-class").value,
+                    phone: document.getElementById("reg-phone").value,
+                    email: document.getElementById("reg-email").value
+                });
+                if (result.ok) {
+                    showAlert(result.message, "success");
+                    setTimeout(() => { window.location.replace("index.html"); }, 500);
+                } else {
+                    showAlert(result.message, "error");
+                }
+            });
+        })();
+    </script>
+</body>
+</html>
